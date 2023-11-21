@@ -2335,29 +2335,34 @@ final class S3Request
 	* @param string $data Data
 	* @return integer
 	*/
-	private function __responseHeaderCallback($curl, $data)
-	{
-		if (($strlen = strlen($data)) <= 2) return $strlen;
-		if (substr($data, 0, 4) == 'HTTP')
-			$this->response->code = (int)substr($data, 9, 3);
-		else
-		{
-			$data = trim($data);
-			if (strpos($data, ': ') === false) return $strlen;
-			list($header, $value) = explode(': ', $data, 2);
-			if ($header == 'Last-Modified')
-				$this->response->headers['time'] = strtotime($value);
-			elseif ($header == 'Date')
-				$this->response->headers['date'] = strtotime($value);
-			elseif ($header == 'Content-Length')
-				$this->response->headers['size'] = (int)$value;
-			elseif ($header == 'Content-Type')
-				$this->response->headers['type'] = $value;
-			elseif ($header == 'ETag')
-                $this->response->headers['hash'] = $value[0] == '"' ? substr($value, 1, -1) : $value;
-			elseif (preg_match('/^x-amz-meta-.*$/', $header))
-				$this->response->headers[$header] = $value;
+	private function __responseHeaderCallback($curl, $data)	{
+		if (($strlen = mb_strlen($data)) <= 2) {
+			return $strlen;
 		}
+		if (mb_substr($data, 0, 4) == 'HTTP') {
+			$this->response->code = (int)mb_substr($data, 9, 3);
+		} else {
+			$data = trim($data);
+			if (mb_strpos($data, ': ') === false) {
+				return $strlen;
+			}
+			list($header, $value) = explode(': ', $data, 2);
+			$header = mb_strtolower($header);
+			if ($header === 'last-modified') {
+				$this->response->headers['time'] = strtotime($value);
+			} elseif ($header === 'date') {
+				$this->response->headers['date'] = strtotime($value);
+			} elseif ($header === 'content-length') {
+				$this->response->headers['size'] = (int)$value;
+			} elseif ($header === 'content-type') {
+				$this->response->headers['type'] = $value;
+			} elseif ($header === 'etag') {
+				$this->response->headers['hash'] = $value[0] == '"' ? mb_substr($value, 1, -1) : $value;
+			} elseif (preg_match('/^x-amz-meta-.*$/i', $header)) {
+				$this->response->headers[$header] = $value;
+			}
+		}
+
 		return $strlen;
 	}
 
