@@ -2166,13 +2166,13 @@ final class S3Request
 		// Headers
 		$headers = array(); $amz = array();
 		foreach ($this->amzHeaders as $header => $value)
-			if (strlen($value) > 0) $headers[] = $header.': '.$value;
+			if (is_string($value) && strlen($value) > 0) $headers[] = $header.': '.$value;
 		foreach ($this->headers as $header => $value)
-			if (strlen($value) > 0) $headers[] = $header.': '.$value;
+			if (is_string($value) && strlen($value) > 0) $headers[] = $header.': '.$value;
 
 		// Collect AMZ headers for signature
 		foreach ($this->amzHeaders as $header => $value)
-			if (strlen($value) > 0) $amz[] = strtolower($header).':'.$value;
+			if (is_string($value) && strlen($value) > 0) $amz[] = strtolower($header).':'.$value;
 
 		// AMZ headers must be sorted
 		if (sizeof($amz) > 0)
